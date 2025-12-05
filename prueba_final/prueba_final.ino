@@ -29,6 +29,25 @@ bool alertaEnviada = false;
 
 // Declaración anticipada de la función enviarSMS
 void enviarSMS();
+// Declaración anticipada de la función comunicacion
+void comunicacion();
+
+//========== FUNCIÓN PARA comunicacion de sim800l ==========
+
+void comunicacion(){
+   // Si hay datos disponibles en el puerto serial USB (desde la computadora)
+    if (Serial.available()) {
+    // Lee los datos del USB y los envía al módulo SIM800
+    simSerial.write(Serial.read());
+    }
+        
+    // Si hay datos disponibles desde el módulo SIM800
+    if (simSerial.available()) {
+    // Lee los datos del SIM800 y los envía al monitor serial USB
+    Serial.write(simSerial.read());
+    }
+    
+  }
 
 // ========== FUNCIÓN PARA ENVIAR SMS ==========
 void enviarSMS() {
@@ -44,6 +63,7 @@ void enviarSMS() {
   // Envía el comando AT para configurar el módulo en modo texto (necesario para
   // enviar SMS)
   simSerial.println("AT+CMGF=1");
+  comunicacion();
   // Espera 1 segundo para que el módulo procese el comando
   delay(1000);
 
@@ -56,22 +76,26 @@ void enviarSMS() {
 
   // Envía el comando completo al módulo SIM800 con el número de teléfono
   simSerial.println(phonenumber);
+  comunicacion();
   // Espera 1 segundo para que el módulo procese el comando
   delay(1000);
 
   // Envía el texto del mensaje SMS
   simSerial.print("ALERTA: Gas detectado. ");
+  comunicacion();
   // Espera 500 milisegundos antes de finalizar el mensaje
   delay(500);
 
   // Envía el carácter ASCII 26 (Ctrl+Z) que indica el fin del mensaje SMS
   simSerial.write(26);
+  comunicacion();
   // Espera 5 segundos para que el módulo envíe el SMS
   delay(5000);
 
   // Imprime en el monitor serial que el SMS fue enviado
   Serial.println("SMS enviado");
 }
+
 
 // ========== CONFIGURACIÓN INICIAL (se ejecuta una sola vez) ==========
 void setup() {
@@ -125,19 +149,8 @@ void loop() {
       Serial.println("Sistema reseteado");
     }
   }
-  // Si hay datos disponibles en el puerto serial USB (desde la computadora)
-  if (Serial.available()) {
-    // Lee los datos del USB y los envía al módulo SIM800
-    simSerial.write(Serial.read());
-  }
-
-  // Si hay datos disponibles desde el módulo SIM800
-  if (simSerial.available()) {
-    // Lee los datos del SIM800 y los envía al monitor serial USB
-    Serial.write(simSerial.read());
-  }
-
-  // Espera 10 segundos antes de realizar la siguiente lectura (nota: el
-  // comentario dice 15 pero está en 10)
-  delay(10000);
+  
+    
+  // Espera 15 segundos antes de realizar la siguiente lectura
+  delay(15000);
 }
