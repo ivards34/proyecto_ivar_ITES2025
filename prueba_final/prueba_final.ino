@@ -36,13 +36,14 @@ void comunicacion();
 
 void comunicacion(){
    // Si hay datos disponibles en el puerto serial USB (desde la computadora)
-    if (Serial.available()) {
+    delay(1000);
+    while (Serial.available()) {
     // Lee los datos del USB y los envía al módulo SIM800
     simSerial.write(Serial.read());
     }
         
     // Si hay datos disponibles desde el módulo SIM800
-    if (simSerial.available()) {
+    while (simSerial.available()) {
     // Lee los datos del SIM800 y los envía al monitor serial USB
     Serial.write(simSerial.read());
     }
@@ -59,7 +60,7 @@ void enviarSMS() {
   Serial.println("Enviando SMS...");
 
   // Espera 10 segundos para que el módulo SIM800 se estabilice
-  delay(10000);
+  delay(5000);
   // Envía el comando AT para configurar el módulo en modo texto (necesario para
   // enviar SMS)
   simSerial.println("AT+CMGF=1");
